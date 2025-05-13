@@ -36,4 +36,17 @@ public class ContactMessageController {
     }
 
 
+    @GetMapping("/search-by-email")
+    public Page<ContactMessageResponseDTO> searchByEmail(
+            @RequestParam String email,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "ASC") Sort.Direction order){
+        ContactMessageService contactMessageService = null;
+        return contactMessageService.searchByEmail(email, page, size, sortBy, order);
+    }
+
+
+
 }
