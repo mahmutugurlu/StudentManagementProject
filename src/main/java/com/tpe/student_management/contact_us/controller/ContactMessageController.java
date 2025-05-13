@@ -1,0 +1,39 @@
+package com.tpe.student_management.contact_us.controller;
+
+import com.tpe.student_management.contact_us.dto.ContactMessageRequestDTO;
+import com.tpe.student_management.contact_us.dto.ContactMessageResponseDTO;
+import com.tpe.student_management.contact_us.service.ContactMessageService;
+import com.tpe.student_management.payload.response.ResponseMessage;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/contact-messages")
+public class ContactMessageController {
+
+    private final ContactMessageService contactMessageService;
+
+    @PostMapping("/save")
+    public ResponseMessage<ContactMessageResponseDTO> saveContactMessage(@RequestBody @Valid
+                                                                         ContactMessageRequestDTO dto){
+        return contactMessageService.saveContactMessage(dto);
+    }
+
+
+
+    @GetMapping("/get-all")
+    public Page<ContactMessageResponseDTO> getAll(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "ASC") Sort.Direction order){
+        return contactMessageService.getAll(page, size, sortBy, order);
+    }
+
+
+}
