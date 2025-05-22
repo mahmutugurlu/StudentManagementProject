@@ -82,7 +82,7 @@ public class ContactMessageController {
 
     }
 
-
+    //
     @DeleteMapping("/id")
     public ResponseMessage<ContactMessageResponseDTO> deleteByIdQuery(@RequestParam("id") Long id) {
 
@@ -110,7 +110,7 @@ public class ContactMessageController {
     }
 
 
-
+//
 
     }
 
@@ -125,7 +125,7 @@ public class ContactMessageController {
     // ******************** deleteByIdUsingQueryParameter ******************** //Normalde tercih edilmez
     //- ******************** findById ********************
     // ******************** findByIdUsingQueryParameter ******************** //Tercih edilmez
-
+ ///
 
 
 
