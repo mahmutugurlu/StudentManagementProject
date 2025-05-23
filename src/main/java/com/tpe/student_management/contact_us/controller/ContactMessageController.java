@@ -1,33 +1,30 @@
 package com.tpe.student_management.contact_us.controller;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.tpe.student_management.contact_us.dto.ContactMessageRequestDTO;
 import com.tpe.student_management.contact_us.dto.ContactMessageResponseDTO;
+import com.tpe.student_management.contact_us.entity.ContactMessage;
 import com.tpe.student_management.contact_us.service.ContactMessageService;
 import com.tpe.student_management.payload.response.ResponseMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
-import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/contact-messages")
+@RequestMapping("/contact-messages") //"/contactMessages" tercih edilmez.
 public class ContactMessageController {
-
     private final ContactMessageService contactMessageService;
 
     @PostMapping("/save")
     public ResponseMessage<ContactMessageResponseDTO> saveContactMessage(@RequestBody @Valid
-                                                                         ContactMessageRequestDTO dto){
+                                                                             ContactMessageRequestDTO dto){
         return contactMessageService.saveContactMessage(dto);
     }
-
-
 
     @GetMapping("/get-all")
     public Page<ContactMessageResponseDTO> getAll(
@@ -38,7 +35,6 @@ public class ContactMessageController {
         return contactMessageService.getAll(page, size, sortBy, order);
     }
 
-//git
     @GetMapping("/search-by-email")
     public Page<ContactMessageResponseDTO> searchByEmail(
             @RequestParam String email,
@@ -46,86 +42,52 @@ public class ContactMessageController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "ASC") Sort.Direction order){
-        ContactMessageService contactMessageService = null;
         return contactMessageService.searchByEmail(email, page, size, sortBy, order);
     }
 
-
-    @GetMapping("/search-by-subject")
+    // ******************** searchBySubject ********************
+    @GetMapping("/searchBySubject") //http://localhost:8080/contactMessages/searchBySubject?subject=deneme
     public Page<ContactMessageResponseDTO> searchBySubject(
-            @RequestParam String subject,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "ASC")Sort.Direction order
-    ){
-        return contactMessageService.searchBySubject(subject,page,size,sortBy,order);
+            @RequestParam(value = "subject") String subject,
+            @RequestParam(value = "page",defaultValue = "1") int page,
+            @RequestParam(value = "size",defaultValue = "10") int size,
+            @RequestParam(value = "sort",defaultValue = "dateTime") String sort,
+            @RequestParam(value = "type", defaultValue = "desc") String type){
+        return contactMessageService.searchBySubject(subject,page,size,sort,type);
     }
 
-
-    @GetMapping("/id/{id}")
-    public ResponseMessage<ContactMessageResponseDTO> findById(@PathVariable("id") Long id){
-
-
-        return contactMessageService.findById(id);
-    }
-
-
-    @DeleteMapping("/deleteid/{id}")
-
-
-    public ResponseMessage<ContactMessageResponseDTO> deleteById(@PathVariable("id") Long id) {
-
-
-        return contactMessageService.deleteById(id);
-
-
-    }
-
-    //
-    @DeleteMapping("/id")
-    public ResponseMessage<ContactMessageResponseDTO> deleteByIdQuery(@RequestParam("id") Long id) {
-
-        return contactMessageService.deleteById(id);
-    }
-
-
-    @GetMapping("/id")
-    public ResponseMessage<ContactMessageResponseDTO> findByIdUsingQueryParameter(@RequestParam("id") Long id){
-
-
-        return contactMessageService.findById(id);
-    }
-
-
-    @GetMapping("/search-by-date")
-    public Page<ContactMessageResponseDTO> searchByDateBetween(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "ASC") Sort.Direction order) {
-        return contactMessageService.searchByDateBetween(startDate, endDate, page, size, sortBy, order);
-    }
-
-
-//
-
-    }
-
-
-
-
-
-
-    // -********************* searchBySubject ********************
     // ******************** searchByDateBetween ******************** //Bu zor olan
-    // -******************** deleteById ********************
+    @GetMapping("/searchBetweenDates") //http://localhost:8080/contactMessages/searchBetweenDates?beginDate=2023-09-13&endDate=2023-09-15
+    public ResponseEntity<List<ContactMessage>> searchByDateBetween(
+            @RequestParam(value = "beginDate") String beginDateString,
+            @RequestParam(value = "endDate") String endDateString){
+        List<ContactMessage> contactMessages = contactMessageService.searchByDateBetween(beginDateString,
+                endDateString);
+        return ResponseEntity.ok(contactMessages);
+    }
+
+    // ******************** deleteById ********************
+    @DeleteMapping("/deleteById/{contactMessageId}")//http://localhost:8080/contactMessages/deleteById/2
+    public ResponseEntity<String> deleteById(@PathVariable Long contactMessageId){
+        return ResponseEntity.ok(contactMessageService.deleteById(contactMessageId));
+    }
+
     // ******************** deleteByIdUsingQueryParameter ******************** //Normalde tercih edilmez
-    //- ******************** findById ********************
+    @DeleteMapping("/deleteByIdParam") //http://localhost:8080/contactMessages/deleteByIdParam?contactMessageId=1
+    public ResponseEntity<String> deleteByIdUsingQueryParameter(@RequestParam(value = "contactMessageId")
+                                                                    Long contactMessageId){
+        return ResponseEntity.ok(contactMessageService.deleteById(contactMessageId));
+    }
+
+    // ******************** findById ********************
+    @GetMapping("/getById/{contactMessageId}")//http://localhost:8080/contactMessages/getById/1
+    public ResponseEntity<ContactMessage> findById(@PathVariable Long contactMessageId){
+        return ResponseEntity.ok(contactMessageService.getContactMessageById(contactMessageId));
+    }
     // ******************** findByIdUsingQueryParameter ******************** //Tercih edilmez
- ///
-
-
-
+    @GetMapping("/getByIdParam") //http://localhost:8080/contactMessages/getByIdParam?contactMessageId=1
+    public ResponseEntity<ContactMessage> findByIdUsingQueryParameter(@RequestParam(value = "contactMessageId")
+                                                                          Long contactMessageId){
+        return ResponseEntity.ok(contactMessageService.getContactMessageById(contactMessageId));
+    }
+}

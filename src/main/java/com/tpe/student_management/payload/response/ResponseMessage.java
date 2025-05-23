@@ -14,14 +14,8 @@ import org.springframework.http.HttpStatus;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 //JsonInclude, response'ta neler olmasini istedigimizi belirtmek icin kullanilir.
 //NON_NULL -> Response body, null olmayan fieldlari icerir.
-
 public class ResponseMessage<E> {
-
     private E object;
     private String message;
     private HttpStatus httpStatus;
-
-
-
-
 }

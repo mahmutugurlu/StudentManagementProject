@@ -1,12 +1,13 @@
 package com.tpe.student_management.contact_us.service;
 
-
 import com.tpe.student_management.contact_us.dto.ContactMessageRequestDTO;
 import com.tpe.student_management.contact_us.dto.ContactMessageResponseDTO;
 import com.tpe.student_management.contact_us.entity.ContactMessage;
 import com.tpe.student_management.contact_us.mapper.ContactMessageMapper;
+import com.tpe.student_management.contact_us.messages.Messages;
 import com.tpe.student_management.contact_us.repository.ContactMessageRepository;
-import com.tpe.student_management.exception.ContactMessageNotFoundException;
+import com.tpe.student_management.exception.ConflictException;
+import com.tpe.student_management.exception.ResourceNotFoundException;
 import com.tpe.student_management.payload.response.ResponseMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,7 +18,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
+import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -40,15 +43,12 @@ public class ContactMessageService {
                 .build();
     }
 
-
     public Page<ContactMessageResponseDTO> getAll(int page, int size, String sortBy, Sort.Direction order) {
         Pageable pageable = PageRequest.of(page-1, size, Sort.by(order, sortBy));
 
         //findAll'a kadar olan kisim bize Page<ContactMessage> dondurur.
-
         return contactMessageRepository.findAll(pageable).map(mapper::mapContactMessageToResponseDTO);
     }
-
 
     public Page<ContactMessageResponseDTO> searchByEmail(String email, int page, int size,
                                                          String sortBy,Sort.Direction order) {
@@ -57,75 +57,38 @@ public class ContactMessageService {
         return contactMessageRepository.findAllByEmail(email, pageable).map(mapper::mapContactMessageToResponseDTO);
     }
 
+    //Buradan sonrasi odev
+    public Page<ContactMessageResponseDTO> searchBySubject(String subject, int page, int size, String sort,
+                                                          String type) {
 
-    public Page<ContactMessageResponseDTO> searchBySubject(String subject, int page, int size, String sortBy,
-                                                           Sort.Direction order) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sort).ascending());
 
-        Pageable pageable = PageRequest.of(page-1, size, Sort.by(order, sortBy));
+        if (Objects.equals(type, "desc")){
+            pageable = PageRequest.of(page, size, Sort.by(sort).descending());
+        }
 
-        return contactMessageRepository.findAllBySubject(subject, pageable).
+        return contactMessageRepository.findAllBySubject(subject, pageable). // Derived
                 map(mapper::mapContactMessageToResponseDTO);
-
-
     }
 
-
-    public ResponseMessage<ContactMessageResponseDTO> findById(Long id) {
-
-        ContactMessage byId = getById(id);
-
-        ContactMessageResponseDTO responseDTO = mapper.mapContactMessageToResponseDTO(byId);
-
-        return ResponseMessage.<ContactMessageResponseDTO>builder()
-                .message("Contact messages found !" + id)
-                .httpStatus(HttpStatus.OK)
-                .object(responseDTO)
-                .build();
-
-
-        /*
-        public ContactMessageResponseDTO findById(Long id) {
-  ContactMessage contactMessage=  contactMessageRepository.findById(id).
-  orElseThrow(()->new ContactMessageNotFoundException("Contact Message Not Found with id :  "+id));
-  return   mapper.mapContactMessageToResponseDTO(contactMessage);
-          }
-
-         */
-
+    public List<ContactMessage> searchByDateBetween(String beginDateString, String endDateString) {
+        try {
+            LocalDate beginDate = LocalDate.parse(beginDateString);
+            LocalDate endDate = LocalDate.parse(endDateString);
+            return contactMessageRepository.findMessagesBetweenDates(beginDate, endDate);
+        } catch (DateTimeParseException e) {
+            throw new ConflictException(Messages.WRONG_DATE_FORMAT);
+        }
     }
 
-    private ContactMessage getById(Long id) {
-        return contactMessageRepository.findById(id).orElseThrow(() -> new ContactMessageNotFoundException("Contact Message Not Found with id :  " + id));
-    }
-
-
-    public ResponseMessage<ContactMessageResponseDTO> deleteById(Long id) {
-
-      ContactMessage byId =  getById(id);
+    public String deleteById(Long id) {
+        getContactMessageById(id);
         contactMessageRepository.deleteById(id);
-
-       // ContactMessageResponseDTO responseDTO = mapper.mapContactMessageToResponseDTO(byId);
-
-        return ResponseMessage.<ContactMessageResponseDTO>builder()
-                .message(" User deleted !" + id)
-                .httpStatus(HttpStatus.NO_CONTENT)
-               // .object(responseDTO)
-                .build();
-
-
+        return Messages.CONTACT_MESSAGE_DELETED_SUCCESSFULLY;
     }
 
-
-    public Page<ContactMessageResponseDTO> searchByDateBetween(LocalDate startDate, LocalDate endDate,
-                                                               int page, int size, String sortBy, Sort.Direction order) {
-        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(order, sortBy));
-        LocalDateTime start = startDate.atStartOfDay();
-        LocalDateTime end = endDate.atTime(23, 59, 59);
-
-        return contactMessageRepository.findAllByCreatedAtBetween(start, end, pageable)
-                .map(mapper::mapContactMessageToResponseDTO);
+    public ContactMessage getContactMessageById(Long id) {
+        return contactMessageRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException(Messages.NOT_FOUND_MESSAGE));
     }
-
-
-
 }

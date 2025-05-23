@@ -1,6 +1,5 @@
 package com.tpe.student_management.entity.classes.user;
 
-
 import com.tpe.student_management.entity.enums.Role;
 import lombok.*;
 
@@ -24,6 +23,4 @@ public class UserRole {
     private Role role;
 
     private String roleName;
-
-
 }

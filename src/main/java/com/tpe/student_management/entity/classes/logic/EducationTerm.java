@@ -1,12 +1,14 @@
 package com.tpe.student_management.entity.classes.logic;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tpe.student_management.entity.enums.Term;
 import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 
@@ -39,4 +41,8 @@ public class EducationTerm {
     @Column(name = "last_registration_date")
     @NotNull(message = "Term last registration date must be provided.")
     private LocalDate lastRegistrationDate;
+
+    @OneToMany(mappedBy = "educationTerm", cascade = CascadeType.ALL)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private List<LessonProgram> lessonPrograms;
 }

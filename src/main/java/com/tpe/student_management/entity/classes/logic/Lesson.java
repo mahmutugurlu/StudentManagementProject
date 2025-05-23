@@ -1,19 +1,18 @@
 package com.tpe.student_management.entity.classes.logic;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.Set;
 
 @Entity
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-
 public class Lesson {
 
     @Id
@@ -26,6 +25,7 @@ public class Lesson {
 
     private Boolean isMandatory;
 
-
+    @ManyToMany(mappedBy = "lessons", cascade = CascadeType.REMOVE)
+    @JsonIgnore
+    private Set<LessonProgram> lessonPrograms;
 }
-
