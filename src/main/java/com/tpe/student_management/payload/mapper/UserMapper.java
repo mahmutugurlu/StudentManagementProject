@@ -2,14 +2,17 @@ package com.tpe.student_management.payload.mapper;
 
 import com.tpe.student_management.entity.classes.user.User;
 import com.tpe.student_management.payload.request.abstracts.BaseUserRequest;
+import com.tpe.student_management.payload.request.user.StudentRequestDTO;
 import com.tpe.student_management.payload.request.user.TeacherRequestDTO;
 import com.tpe.student_management.payload.request.user.UserRequestDTO;
 import com.tpe.student_management.payload.response.user.StudentResponseDTO;
 import com.tpe.student_management.payload.response.user.TeacherResponseDTO;
 import com.tpe.student_management.payload.response.user.UserResponseDTO;
+import lombok.Builder;
 import org.springframework.stereotype.Component;
 
 @Component
+
 public class UserMapper {
     //Exercise: Bu metod normalde tek basina yeterli.
     //Cast kullanilarak Student ve Teacher icin de kullanilabilirdi.
@@ -113,4 +116,9 @@ public class UserMapper {
                 .build();
 
     }
+
+    /*public User mapStudentRequestDTOToUser(StudentRequestDTO dto) {
+
+        return null;
+    }*/
 }
