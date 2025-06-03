@@ -1,8 +1,10 @@
 package com.tpe.student_management.service.user;
 
 import com.tpe.student_management.entity.classes.user.User;
+import com.tpe.student_management.entity.classes.user.UserRole;
 import com.tpe.student_management.entity.enums.Role;
 import com.tpe.student_management.payload.mapper.UserMapper;
+import com.tpe.student_management.payload.messages.SuccessMessages;
 import com.tpe.student_management.payload.request.user.StudentRequestDTO;
 import com.tpe.student_management.payload.response.ResponseMessage;
 import com.tpe.student_management.payload.response.user.StudentResponseDTO;
@@ -12,6 +14,9 @@ import com.tpe.student_management.service.validator.UniquePropertyValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -49,6 +54,36 @@ public class StudentService {
         //oldugu da belirtilir. null oldugunda ise, isAdvisor fieldinin student rolu ile hicbir alakasi olmadigi
         //belirtilir.
 
-        return null;
+        student.setStudentNumber(getNewStudentNumber());
+
+        return ResponseMessage.<StudentResponseDTO>builder()
+                .message(SuccessMessages.STUDENT_CREATE_SUCCESS)
+                .object(userMapper.mapUserToStudentResponseDTO(userRepository.save(student)))
+                .build();
+    }
+
+    private Integer getNewStudentNumber(){
+        if (!userRepository.existsByRole(Role.STUDENT)){ //jpql
+            return 1000;
+        }
+
+        return userRepository.findMaxStudentNumber() + 1;
+    }
+
+    public Map<String, Object> changeStatusOfStudent(Long studentId, Boolean newStatus) {
+        User user = methodHelper.isUserExist(studentId);
+        methodHelper.checkRole(user, Role.STUDENT);
+    /*
+    if (newStatus.equals(user.isActive())){ //Boyle bir kontrol yapilabilirdi.
+
+    }*/
+        user.setActive(newStatus);
+        userRepository.save(user);
+
+        Map<String,Object> map = new HashMap<>();
+        map.put("message", "New status set successfully!");
+        map.put("newStatus", newStatus ? "active" : "false");
+
+        return map;
     }
 }
