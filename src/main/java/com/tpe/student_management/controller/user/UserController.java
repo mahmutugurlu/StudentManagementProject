@@ -45,7 +45,7 @@ public class UserController {
     @GetMapping("/get/{userId}")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     public ResponseMessage<BaseUserResponse> getUserById(@PathVariable Long userId){
-        return userService.getUserById(userId);
+        return userService.getUserById(userId);//
     }
 
     // ****************     deleteUserById()
