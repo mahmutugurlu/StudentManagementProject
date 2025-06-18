@@ -68,7 +68,7 @@ public class UserController {
     }
 
     // ****************     updateUserOwnInfo()
-    // ---SIFRE HARIC kullanicinin kendi bilgisini guncellemesini saglayan metod.
+    // ---SIFRE HARIC kullanicinin kendi bilgisini guncellemesini saglayan metod. //
     @PatchMapping("/updateUser")   // http://localhost:8080/user/updateUser
     @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER','ASSISTANT_MANAGER','TEACHER')")
     public ResponseEntity<String>updateUserOwnInfo(@RequestBody @Valid
